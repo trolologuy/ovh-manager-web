@@ -13,9 +13,13 @@ angular.module('App').controller(
    * @param MXPlan
    * @param User
    */
-    constructor($scope, $q, $translate, $window, Alerter, atInternet, Domain, MXPlan, User) {
-      this.$scope = $scope;
+    constructor(
+      $q, $scope, $stateParams, $translate, $window,
+      Alerter, atInternet, Domain, MXPlan, User,
+    ) {
       this.$q = $q;
+      this.$scope = $scope;
+      this.$stateParams = $stateParams;
       this.$translate = $translate;
       this.$window = $window;
       this.Alerter = Alerter;
@@ -38,7 +42,7 @@ angular.module('App').controller(
       this.order = null;
       this.selectedOrder = {
         config: {
-          domain: null,
+          domain: _.get(this.$stateParams, 'domain'),
           offer: null,
         },
         duration: null,
@@ -51,7 +55,12 @@ angular.module('App').controller(
         durations: 'mxPlan.alerts.order.duration',
       };
 
-      this.initialLoad();
+      this.initialLoad()
+        .then(() => {
+          if (this.selectedOrder.config.domain) {
+            this.fetchOffers();
+          }
+        });
     }
 
     initialLoad() {
